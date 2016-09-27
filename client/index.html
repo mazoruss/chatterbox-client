@@ -26,9 +26,16 @@
   <body>
     <div id="main">
       <h1>chatterbox</h1>
+      <div id='rooms' class="dropdown">
+        <button class="dropbtn">Rooms</button>
+        <div class="dropdown-content">
+          <a href="#" class='allrooms'>All</a>
+        </div>
+      </div>
       <button onclick='refresh()'>refresh</button>
       <input class='message' type="text" placeholder="your message">
       <button onclick='writing()'>send</button>
+      <button onclick='makeroom()'>Create Room</button>
       <!-- Your HTML goes here! -->
     </div>
     <div id="chats"></div>
