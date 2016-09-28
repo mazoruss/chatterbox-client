@@ -11,19 +11,17 @@ var refresh = function() {
 
   //makes a get request and save the data into chatters object;
   $.ajax({
-    url: 'https://api.parse.com/1/classes/messages?order=-createdAt',
-    type: 'GET',    
+    url: 'https://api.parse.com/1/classes/messages',
+    type: 'GET',  
+    data: {
+      order: '-createdAt',
+      // where: '{"username":"Jace"}'
+    },  
     success: function (data) {
       chatters = data;
     },
     error: function (data) { console.error('could not retrieve messages', data); }
-  });	
-	
-	//print lines after 1 second to make sure all data arrived;
-  setTimeout(() => {
-    erase();
-    printLines();
-  }, 1000);
+  });		
 };
 
 var erase = function() {
@@ -34,21 +32,12 @@ var erase = function() {
 var printLines = function() {
 
   chatters.results.forEach(message => {
-    //takes care of edge cases
-    if (message.text === undefined || message.text === prevMessage || message.text.trim().length === 0) { return; }
+    //takes care of spam and edge cases
+    if (message.text === undefined || message.text === prevMessage || message.text.trim().length === 0 /*|| (room !== message.roomname) && ( message.roomname !== undefined )*/) { return; }
     if (message.roomname === undefined || message.roomname === null) { message.roomname = 'lobby'; }
     prevMessage = message.text;
-    var $username = $('<span class="name"></span>');
-    $username.attr('username', message.username);
-    $username.text(message.username);
-
-    var $msg = $('<span></span>');
-    $msg.text(': ' + message.text);
     
-    var $line = $('<p></p>');
-    $line.append($username);
-    $line.append($msg);
-    $line.addClass(message.roomname.split(' ').join(''));
+    var $line = nodifyMessage(message);
 
     if (message.roomname && rooms.indexOf(message.roomname) === -1) {
       rooms.push(message.roomname);
@@ -60,15 +49,8 @@ var printLines = function() {
       $line.toggleClass('friends');
     }
 
-    $username.on('click', function() {
-      friends[message.username] ?
-        friends[message.username] = false :
-        friends[message.username] = true;
-      erase();
-      printLines();
-    });
-  });
 
+  });
   createRooms();
 };
 
@@ -140,7 +122,7 @@ var writing = function() {
     }
   });
 
-  setTimeout(refresh, 300);
+  setTimeout(refresh, 800);
 };
 
 var tabfunction = function() {
@@ -167,6 +149,14 @@ var removeTabFunction = function() {
 
 };
 
+var addFriendHandler = function(event) {
+  var name = $(event.target).attr('username');
+  friends[name] ?
+    friends[name] = false :
+    friends[name] = true;
+  erase();
+  printLines();
+};
 //refreshes every 5 seconds
 $(document).ready(() => {
   refresh();
@@ -179,4 +169,7 @@ $(document).ready(() => {
       writing(); 
     }
   });
+  $('#chats').on('click', '.name', addFriendHandler);
 });
+
+$(document).ajaxComplete( () => { erase(); printLines(); });
