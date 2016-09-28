@@ -141,7 +141,7 @@ p {
 }
 
 input {
-    width: 200px;
+    width: 250px;
 }
 
 .friends {
@@ -178,4 +178,10 @@ input {
 .signs {
     width: 15px;
     height: 15px;
+}
+.loading {
+    float: right;
+    background-color: #eee;
+    padding-top: 8px;
+    opacity: 0;
 }
